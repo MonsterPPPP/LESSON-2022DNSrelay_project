@@ -1,10 +1,14 @@
+import java.util.Date;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.text.SimpleDateFormat;
+
 
 /**
  * 在收到或者发送DNS数据报后被调用，根据Config中配置的调试模式打印调试信息
  */
 public class Debugger {
+
     private byte[] data; //
     private InetAddress address;
     private int port;
@@ -53,14 +57,33 @@ public class Debugger {
         DNSHeader tmpHeader=new DNSHeader(this.data);
         System.out.print("        ");
         System.out.print("ID"+tmpHeader.getID()+", ");
+        byte[] flags= Tool.shortToByteArray(tmpHeader.getFlags());
+        System.out.print("QR "+(flags[0] & 0x01)+", "); //取前一个byte 的第一位
+        System.out.print("OPCODE "+(flags[0] & 0x17)+", ");//取前一个byte 的第二到五
+        System.out.print("AA "+(flags[0] & 0x20)+", ");//取前一个byte 的第六
+        System.out.print("TC "+(flags[0] & 0x40)+", ");//取前一个byte 的第七
+        System.out.print("RD "+(flags[0] & 0x80)+", ");//取前一个byte 的第八
+        System.out.print("RA "+(flags[1] & 0x01)+", ");//取第二个byte 的第一
+        System.out.print("Z "+(flags[1] & 0x07)+", ");//取第二个byte 的第二到四
+        System.out.print("RCODE "+(flags[1] & 0xf0)+"\n");//取第二个byte 的第五到八
+        System.out.print("        ");
+        System.out.print("QDCOUNT "+tmpHeader.getQucount()+", ");
+        System.out.print("ANCOUNT "+tmpHeader.getAncount()+", ");
+        System.out.print("NSCOUNT "+tmpHeader.getAucount()+", ");
+        System.out.print("NSCOUNT "+tmpHeader.getAdcount()+"\n");
 
-        short flags= tmpHeader.getFlags();
+
+        System.out.print(" "+Config.debuggerCounter+": ");
+        System.out.print(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())+" ");
+        System.out.print("Client"+this.address.getAddress());
+        DNSQuestion tmpQuestion=new DNSQuestion(this.data);
+        int headerLen=tmpHeader.toByteArray().length;
+        int QuestionLen=tmpQuestion.toByteArray().length;
+        DNSRR tmpRR=new DNSRR(this.data,headerLen+QuestionLen);
 
 
-        System.out.print("");
-        System.out.print("");
-        System.out.print("");
-
+        //       打印RR部分
+        //
 
     }
     private void dprintReceive(){

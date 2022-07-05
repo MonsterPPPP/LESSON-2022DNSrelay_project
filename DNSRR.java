@@ -52,6 +52,15 @@ public class DNSRR {
         this.rdata = rdata;
     }
 
+    public DNSRR(byte[] data,int offset) {
+        this.aname = aname;
+        this.atype = atype;
+        this.aclass = aclass;
+        this.ttl = ttl;
+        this.rdlength = rdlength;
+        this.rdata = rdata;
+    }
+
     public short getAname() {
         return aname;
     }
