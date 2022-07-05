@@ -1,6 +1,11 @@
 public class Test {
     public static void main(String[] args){
-        System.out.println("Hello world");
-        System.out.println("Hello world");
+
+        //Tool.searchDataBase("");
+        String key="";
+        if(Main.cachedName.get(key)==null){
+            System.out.println("Hello world");
+        }
+
     }
 }
