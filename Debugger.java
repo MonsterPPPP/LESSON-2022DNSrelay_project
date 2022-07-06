@@ -122,7 +122,6 @@ public class Debugger {
         //如果这个数据报是来自server的，那么就把它忽略
         if(this.address.getHostAddress().equals(Config.serverIP)){
             return;
-
         }
         DNSQuestion tmpQuestion=new DNSQuestion(this.data);
         //首先查询本地数据库这个域名
