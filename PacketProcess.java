@@ -6,7 +6,10 @@ public class PacketProcess implements Runnable{
     private int dataLength;
     private InetAddress clientAddress;
     private int clientPort;
+
+    private DatagramPacket thisPacket;
     public PacketProcess(DatagramPacket packet){
+        thisPacket=packet;
         dataLength = packet.getLength();
         data = new byte[packet.getLength()];
         //将数据报保存到data数组中
@@ -21,11 +24,11 @@ public class PacketProcess implements Runnable{
     +---------------------+
     |       Question      | 查询的问题 dnsQuestion
     +---------------------+
-    |        Answer       | 应答     dnsRR1
+    |        Answer       | 应答
     +---------------------+
-    |      Authority      | 授权应答  dnsRR2
+    |      Authority      | 授权应答  dnsRR
     +---------------------+
-    |      Additional     | 附加信息  dnsRR3
+    |      Additional     | 附加信息
     +---------------------+
      */
 
@@ -33,9 +36,6 @@ public class PacketProcess implements Runnable{
         DNSHeader dnsHeader = new DNSHeader(data); //创建DNSHealder对象
         DNSQuestion dnsQuestion=new DNSQuestion(data);//创建DNSQuestion对象
 
-        System.out.println("收到一个数据包");
-        System.out.println("headerID："+dnsHeader.getID());
-        System.out.println("qname"+dnsQuestion.getQname());
         //首先查询本地数据库这个域名
         String retIP=(String) Main.cachedName.get(dnsQuestion.getQname());
         //如果在本地数据库查不到这个域名，
@@ -53,24 +53,48 @@ public class PacketProcess implements Runnable{
     private void repostToInServer(){
         try {
             InetAddress dnsServer = InetAddress.getByName(Config.serverIP);
-            DatagramPacket sendtoServerPacket = new DatagramPacket(data, dataLength, dnsServer, 53);
+
+            //更改 转发给server的packet id
+            byte[] tmpBytes= new byte[data.length];
+            System.arraycopy(data, 0, tmpBytes, 0, data.length);
+            DNSHeader tmpHeader=new DNSHeader(tmpBytes);
+            tmpHeader.setID(tmpHeader.getID()+128);//在原来id的基础上偏移10
+            byte[] tmpBytes2=tmpHeader.toByteArray();
+            byte[] toServerdata=new byte[data.length];
+            toServerdata[0]=tmpBytes2[0];
+            toServerdata[1]=tmpBytes2[1];
+            for(int i=2;i<data.length;i++){
+                toServerdata[i]=tmpBytes[i];
+            }
+
+            DatagramPacket sendtoServerPacket = new DatagramPacket(toServerdata, dataLength, dnsServer, 53);
             DatagramSocket toServerSocket = new DatagramSocket();
 
             toServerSocket.send(sendtoServerPacket);//发送给DNS Server
-
+            new Debugger(sendtoServerPacket,false,thisPacket);
 
             byte[] receivedData = new byte[1024];
             DatagramPacket receivedServerPacket = new DatagramPacket(receivedData, receivedData.length);
 
             toServerSocket.receive(receivedServerPacket);//从DNS Server接收到
+            new Debugger(receivedServerPacket,true);
 
             // 回复给请求机的packet
-            DatagramPacket responsePacket = new DatagramPacket(receivedData, receivedServerPacket.getLength(), clientAddress, clientPort);
+            //将之前改的id给改回来
+            byte[] responseData=new byte[receivedData.length];
+            responseData[0]=tmpBytes[0];
+            responseData[1]=tmpBytes[1];
+            for(int i=2;i<receivedData.length;i++){
+                responseData[i]=receivedData[i];
+            }
+
+            DatagramPacket responsePacket = new DatagramPacket(responseData, receivedServerPacket.getLength(), clientAddress, clientPort);
             toServerSocket.close();
             synchronized (Main.lockObj) {
                 try {
                     //System.out.println(Thread.currentThread().getName() + " 获得socket，响应" + dnsQuestion.getQname());
                     Main.getSocket().send(responsePacket);
+                    new Debugger(responsePacket,false,receivedServerPacket);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -125,6 +149,7 @@ public class PacketProcess implements Runnable{
         synchronized (Main.lockObj) {
             try {
                 Main.getSocket().send(responsePacket);
+                new Debugger(responsePacket,false,thisPacket);
             } catch (IOException e) {
                 e.printStackTrace();
             }

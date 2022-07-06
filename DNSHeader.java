@@ -100,12 +100,18 @@ public class DNSHeader {
      * @return byte[12]
      */
     public byte[] toByteArray(){
-
+        infoArray=new ArrayList<Short>();
+        infoArray.add(getID());
+        infoArray.add(getFlags());
+        infoArray.add(getQucount());
+        infoArray.add(getAncount());
+        infoArray.add(getAucount());
+        infoArray.add(getAdcount());
 
         byte[] headerBytes = new byte[12];
         int i=0;
         for(short tmp:infoArray){
-            byte[] tmpByte = new byte[2];
+            byte[] tmpByte;
             tmpByte=Tool.shortToByteArray(tmp);
             headerBytes[i++]=tmpByte[0];
             headerBytes[i++]=tmpByte[1];
@@ -123,8 +129,8 @@ public class DNSHeader {
         return ID;
     }
 
-    public void setID(short ID) {
-        this.ID = ID;
+    public void setID(int ID) {
+        this.ID = (short) ID;
     }
 
     public short getFlags() {

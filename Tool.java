@@ -19,8 +19,12 @@ public class Tool {
             String hv = Integer.toHexString(v);
             if (hv.length() < 2) {
                 retString[i]="0";
+                retString[i]=retString[i]+hv;
             }
-            retString[i]=retString[i]+hv;
+            else {
+                retString[i]=hv;
+            }
+
         }
         return retString;
     }
