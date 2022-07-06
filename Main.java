@@ -23,7 +23,11 @@ public class Main {
         System.out.println("Usage: dnsrelay [-d | -dd] [<dns-server>] [<db-file>]");
 
         //根据输入参数配置环境
-        if(args[0].equals("-d")){
+
+        if(args.length==0){//什么都不输入
+            Config.DebuggerMode=3;
+        }
+        else if(args[0].equals("-d")){
             Config.DebuggerMode=1;
             Config.serverIP=args[1];
         }
@@ -31,11 +35,12 @@ public class Main {
             Config.DebuggerMode=2;
             Config.serverIP=args[1];
         }
-        else{
+        else{ //输入ip地址设置
             Config.DebuggerMode=3;
             Config.serverIP=args[0];
         }
-        if(args.length==3){
+
+        if(args.length==3){//修改文件必须 使用 -d/-dd DNSip 新文件路径
             Config.dataBasePath=args[2];
         }
 
