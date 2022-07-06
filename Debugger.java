@@ -3,7 +3,6 @@ import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 
-
 /**
  * 在收到或者发送DNS数据报后被调用，根据Config中配置的调试模式打印调试信息
  */
@@ -37,15 +36,18 @@ public class Debugger {
         System.arraycopy(lastPacket.getData(), 0, lastData, 0, lastPacket.getLength());
         startDebugger();
     }
+
+
+
     private void startDebugger(){
-        if(Config.DebuggerMode==1){
+        if(Config.DebuggerMode==1){ //-d 模式
             if(isReceive){
                 dprintReceive();
             }
             else{
                 dprintSend();
             }
-        } else if (Config.DebuggerMode==2) {
+        } else if (Config.DebuggerMode==2) { //-dd 模式
             if(isReceive){
                 ddprintReceive();
             }
@@ -54,12 +56,10 @@ public class Debugger {
             }
         }else {
             /**
-             需要再确认！！！！！！！！！！！！！！！！！！！！！
+             什么都不做~
              */
         }
     }
-
-
 
     private void ddprintReceive(){
         System.out.println("RECV from "+this.address.getHostAddress()+":"+this.port+" ("+this.data.length+" bytes)");
@@ -118,13 +118,34 @@ public class Debugger {
 
 
     private void dprintReceive(){
+        //如果这个数据报是来自server的，那么就把它忽略
+        if(this.address.getHostAddress().equals(Config.serverIP)){
+            return;
 
+        }
+        DNSQuestion tmpQuestion=new DNSQuestion(this.data);
+        //首先查询本地数据库这个域名
+        String retIP=(String) Main.cachedName.get(tmpQuestion.getQname());
+        //如果在本地数据库查不到这个域名，
+        if(retIP!=null && tmpQuestion.getQtype()!=28){
+            //如果在本地数据库存在，那么就打印*
+            System.out.print(" "+Config.debuggerCounter+":*");
+        }
+        else{
+            System.out.print(" "+Config.debuggerCounter+": ");
+        }
+        Config.debuggerCounter++;
+        System.out.print(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())+" ");
+        System.out.print("Client "+this.address.getHostAddress());
+        System.out.print("        ");
+
+        // 打印Question部分
+        System.out.println(tmpQuestion.getQname()+", TYPE "+tmpQuestion.getQtype()+", CLASS "+tmpQuestion.getQclass());
     }
 
     private void dprintSend(){
-
+        //什么都不做
     }
-
 
 }
 
