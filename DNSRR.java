@@ -5,40 +5,34 @@ public class DNSRR {
      0  1  2  3  4  5  6  7  0  1  2  3  4  5  6  7
      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
      |					   ... 						  |
-     |                    NAME                       |
+     |                    NAME                       |      2
      |                    ...                        |
      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-     |                    TYPE                       |
+     |                    TYPE                       |      2
      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-     |                    CLASS                      |
+     |                    CLASS                      |      2
      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-     |                    TTL                        |
+     |                    TTL                        |      4
      |                                               |
      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-     |                    RDLENGTH                   |
+     |                    RDLENGTH                   |      2
      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
      |                    ...                        |
-     |                    RDATA                      |
+     |                    RDATA                      |      0 or 4
      |                    ...                        |
      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
      */
 
-    /* NAME (2字节 采用消息压缩) */
     private short aname;
 
-    /* TYPE（2字节） */
     private short atype;
 
-    /* CLASS（2字节） */
     private short aclass;
 
-    /* TTL（4字节） */
     private int ttl;
 
-    /* RDLENGTH（2字节） */
     private short rdlength;
 
-    /* RDATA IPv4为4字节*/
     private String rdata;
 
     public DNSRR() {}
@@ -52,14 +46,46 @@ public class DNSRR {
         this.rdata = rdata;
     }
 
-    public DNSRR(byte[] data,int offset) {
-        this.aname = aname;
-        this.atype = atype;
-        this.aclass = aclass;
-        this.ttl = ttl;
-        this.rdlength = rdlength;
-        this.rdata = rdata;
+    /**
+     * 输出包含DNS RR所有信息的字节数组
+     */
+    public byte[] toByteArray() {
+        byte[] data = new byte[12 + rdlength];
+        int offset = 0;
+        byte[] tmpbyte ;
+        tmpbyte = Tool.shortToByteArray(aname);
+        data[offset++] = tmpbyte[0];
+        data[offset++] = tmpbyte[1];
+        tmpbyte = Tool.shortToByteArray(atype);
+        data[offset++] = tmpbyte[0];
+        data[offset++] = tmpbyte[1];
+        tmpbyte = Tool.shortToByteArray(aclass);
+        data[offset++] = tmpbyte[0];
+        data[offset++] = tmpbyte[1];
+        tmpbyte = Tool.intToByteArray(ttl);
+        data[offset++] = tmpbyte[0];
+        data[offset++] = tmpbyte[1];
+        data[offset++] = tmpbyte[2];
+        data[offset++] = tmpbyte[3];
+        tmpbyte = Tool.shortToByteArray(rdlength);
+        data[offset++] = tmpbyte[0];
+        data[offset++] = tmpbyte[1];
+        //十二个固定字符
+        //+可能存在的回复内容，ip地址
+        if (rdlength == 4) {
+            tmpbyte = Tool.ipv4ToByteArray(rdata);
+            for (int i=0; i<4; i++) {
+                data[offset++] = tmpbyte[i];
+            }
+        }
+        return data;
     }
+
+
+    /***********************************************
+     * Getter and Setter
+     * *********************************************
+     */
 
     public short getAname() {
         return aname;
@@ -107,42 +133,5 @@ public class DNSRR {
 
     public void setRdata(String rdata) {
         this.rdata = rdata;
-    }
-
-    /**
-     * 输出包含DNS RR所有信息的字节数组
-     */
-    public byte[] toByteArray() {
-        byte[] data = new byte[12 + rdlength];
-        int offset = 0;
-        byte[] byte_2 = new byte[2];
-        byte[] byte_4 = new byte[4];
-        byte_2 = Tool.shortToByteArray(aname);
-        for (int i=0; i<2; i++) {
-            data[offset++] = byte_2[i];
-        }
-        byte_2 = Tool.shortToByteArray(atype);
-        for (int i=0; i<2; i++) {
-            data[offset++] = byte_2[i];
-        }
-        byte_2 = Tool.shortToByteArray(aclass);
-        for (int i=0; i<2; i++) {
-            data[offset++] = byte_2[i];
-        }
-        byte_4 = Tool.intToByteArray(ttl);
-        for (int i=0; i<4; i++) {
-            data[offset++] = byte_4[i];
-        }
-        byte_2 = Tool.shortToByteArray(rdlength);
-        for (int i=0; i<2; i++) {
-            data[offset++] = byte_2[i];
-        }
-        if (rdlength == 4) {
-            byte_4 = Tool.ipv4ToByteArray(rdata);
-            for (int i=0; i<4; i++) {
-                data[offset++] = byte_4[i];
-            }
-        }
-        return data;
     }
 }

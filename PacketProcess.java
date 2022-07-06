@@ -91,7 +91,7 @@ public class PacketProcess implements Runnable{
 
             DatagramPacket responsePacket = new DatagramPacket(responseData, receivedServerPacket.getLength(), clientAddress, clientPort);
             toServerSocket.close();
-            synchronized (Main.lockObj) {
+            synchronized (Main.lockObj) {//调用socket时加锁，只有一条线程可以使用中继服务器的socket
                 try {
                     //System.out.println(Thread.currentThread().getName() + " 获得socket，响应" + dnsQuestion.getQname());
                     Main.getSocket().send(responsePacket);
@@ -147,7 +147,7 @@ public class PacketProcess implements Runnable{
         }
         // 回复响应数据包
         DatagramPacket responsePacket = new DatagramPacket(response_data, response_data.length, clientAddress, clientPort);
-        synchronized (Main.lockObj) {
+        synchronized (Main.lockObj) {//调用socket时加锁，只有一条线程可以使用中继服务器的socket
             try {
                 Main.getSocket().send(responsePacket);
                 new Debugger(responsePacket,false,thisPacket);

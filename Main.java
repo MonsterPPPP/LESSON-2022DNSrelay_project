@@ -12,7 +12,7 @@ public class Main {
 
     public static Hashtable cachedName = new Hashtable();
 
-    static final Object lockObj = new Object();
+    static final Object lockObj = new Object(); //锁
 
     static DatagramSocket getSocket() {
         return socket;

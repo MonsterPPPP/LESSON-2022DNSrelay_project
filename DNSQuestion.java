@@ -9,19 +9,17 @@ public class DNSQuestion {
      |                    QNAME                      |
      |                     ...                       |
      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-     |                    QTYPE                      |
+     |                    QTYPE                      |      2 bytes
      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-     |                    QCLASS                     |
+     |                    QCLASS                     |      2 bytes
      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
      */
 
     /* QNAME 8bit为单位表示的查询名(广泛的说就是：域名) */
     private String qname;
 
-    /* QTYPE（2字节） */
     private short qtype;
 
-    /* QCLASS（2字节） */
     private short qclass;
 
     public DNSQuestion(byte[] data){

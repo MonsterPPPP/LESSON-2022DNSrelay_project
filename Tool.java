@@ -2,7 +2,6 @@ import java.io.*;
 
 public class Tool {
 
-
     /**
      * 将 byte[] 转化为 hex string[].
      * @param src byte[] data
@@ -28,9 +27,10 @@ public class Tool {
         }
         return retString;
     }
+
     /**
- * 一维字节数组转 short 值(2 字节)
- */
+     * 一维字节数组转 short 值(2 字节)
+     */
 public static short byteArrayToShort(byte[] b){
     return byteArrayToShort(b, 0);
 }
@@ -94,29 +94,6 @@ public static short byteArrayToShort(byte[] b){
     }
 
     /**
-     * byte 转为 16 进制字符串
-     */
-    public static String byteToHexString (byte b) {
-        return Integer.toHexString(byteToInt(b));
-    }
-
-    /**
-     * byte[] 转化为16进制字符串
-     */
-    public static String byteArrayToHexString (byte[] bytes) {
-        StringBuffer sb = new StringBuffer();
-        String s;
-        for (byte b: bytes) {
-            s = byteToHexString(b);
-            if (s.length() < 2) {
-                sb.append('0');
-            }
-            sb.append(s);
-        }
-        return sb.toString();
-    }
-
-    /**
      * 一维字节数组转化为Ascii对应的字符串
      */
 
@@ -177,7 +154,6 @@ public static short byteArrayToShort(byte[] b){
         byte[] result = new byte[4];
         String[] ipv4SubArray = ipv4.split("\\.");
         if (ipv4SubArray.length != 4) {
-            System.out.println("不是合法的IPv4地址");
             return null;
         }
         for (int i=0; i<ipv4SubArray.length; i++) {
