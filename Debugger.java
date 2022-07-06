@@ -80,15 +80,16 @@ public class Debugger {
 
         String[] tmpID=Tool.bytesToHexString(Tool.shortToByteArray(tmpHeader.getID())) ;
         System.out.print("ID "+tmpID[0]+tmpID[1]+", ");
+
         byte[] flags= Tool.shortToByteArray(tmpHeader.getFlags());
-        System.out.print("QR "+(flags[0] & 0x80)+", "); //取前一个byte 的第一位
-        System.out.print("OPCODE "+(flags[0] & 0x78)+", ");//取前一个byte 的第二到五
-        System.out.print("AA "+(flags[0] & 0x04)+", ");//取前一个byte 的第六
-        System.out.print("TC "+(flags[0] & 0x02)+", ");//取前一个byte 的第七
-        System.out.print("RD "+(flags[0] & 0x01)+", ");//取前一个byte 的第八
-        System.out.print("RA "+(flags[1] & 0x80)+", ");//取第二个byte 的第一
-        System.out.print("Z "+(flags[1] & 0x70)+", ");//取第二个byte 的第二到四
-        System.out.print("RCODE "+(flags[1] & 0x0f)+"\n");//取第二个byte 的第五到八
+        System.out.print("QR "+(((flags[0] & 0xff)& 0x80)>>7)+", "); //取前一个byte 的第一位
+        System.out.print("OPCODE "+(((flags[0] & 0xff)& 0x78)>>3)+", ");//取前一个byte 的第二到五
+        System.out.print("AA "+(((flags[0] & 0xff) & 0x04)>>2)+", ");//取前一个byte 的第六
+        System.out.print("TC "+(((flags[0] & 0xff)& 0x02)>>1)+", ");//取前一个byte 的第七
+        System.out.print("RD "+((flags[0] & 0xff)& 0x01)+", ");//取前一个byte 的第八
+        System.out.print("RA "+(((flags[1] & 0xff) & 0x80)>>7)+", ");//取第二个byte 的第一
+        System.out.print("Z "+(((flags[1] & 0xff)& 0x70)>>4)+", ");//取第二个byte 的第二到四
+        System.out.print("RCODE "+((flags[1] & 0xff) & 0x0f)+"\n");//取第二个byte 的第五到八
         System.out.print("        ");
         System.out.print("QDCOUNT "+tmpHeader.getQucount()+", ");
         System.out.print("ANCOUNT "+tmpHeader.getAncount()+", ");

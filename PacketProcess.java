@@ -79,6 +79,7 @@ public class PacketProcess implements Runnable{
             toServerSocket.receive(receivedServerPacket);//从DNS Server接收到
             new Debugger(receivedServerPacket,true);
 
+
             // 回复给请求机的packet
             //将之前改的id给改回来
             byte[] responseData=new byte[receivedData.length];

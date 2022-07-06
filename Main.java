@@ -22,13 +22,7 @@ public class Main {
         System.out.println("Starting DNS relay...");
         System.out.println("Usage: dnsrelay [-d | -dd] [<dns-server>] [<db-file>]");
 
-        System.out.println("输入参数长度:"+args.length);
-        for(String x:args){
-            System.out.print("arg:");
-            System.out.println(x);
-        }
-
-        //initialize setting
+        //根据输入参数配置环境
         if(args[0].equals("-d")){
             Config.DebuggerMode=1;
             Config.serverIP=args[1];
@@ -41,6 +35,10 @@ public class Main {
             Config.DebuggerMode=3;
             Config.serverIP=args[0];
         }
+        if(args.length==3){
+            Config.dataBasePath=args[2];
+        }
+
 
         System.out.println("Name server "+Config.serverIP+":53");
         System.out.println("Debug level "+Config.DebuggerMode);
@@ -58,7 +56,7 @@ public class Main {
         DatagramPacket packet = new DatagramPacket(data, data.length);
 
 
-        System.out.print("Try to load table"+Config.dataBasePath+"...");
+        System.out.print("Try to load  "+Config.dataBasePath+"...");
         try{
             File file = new File(Config.dataBasePath);
             BufferedReader br = new BufferedReader(new FileReader(file));
@@ -84,7 +82,6 @@ public class Main {
             System.out.println(linenum+" names,occupy "+recordString.getBytes(StandardCharsets.UTF_8).length+" bytes memory");
         }catch(Exception e){
             System.out.println("Ignored!");
-            e.printStackTrace();
         }
 
         System.out.println("Successfully started DNS relay service!");

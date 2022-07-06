@@ -1,0 +1,2 @@
+0.0.0.0 www.666.com
+0.0.0.0 www.bupt.com.cn
